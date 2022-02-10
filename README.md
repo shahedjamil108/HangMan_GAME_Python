@@ -1,2 +1,2 @@
 # PYTHON_GAME_2
-This a word guessing game. Python was used to code this game.
+This is a word guessing game. Python was used to code this game.
