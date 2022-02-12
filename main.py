@@ -6,7 +6,9 @@ pygame.init()
 
 
 RADIUS = 20
+RAD = 30
 POSITIONS = []
+LEVEL_POSITIONS =[]
 images = []
 guessed = []
 SOUNDS = []
@@ -36,6 +38,18 @@ def set_position():
         x += 50
         A += 1
 
+    x, y, A = 350, 400, 1
+    for i in range(5):
+        LEVEL_POSITIONS.append([x, y, str(A)])
+        x += 70
+        A += 1
+    
+    x, y = 350, 470
+    for i in range(5):
+        LEVEL_POSITIONS.append([x, y, str(A)])
+        x += 70
+        A += 1
+
 
 def load_images():
     for i in range(7):
@@ -56,7 +70,7 @@ def load_sounds():
     SOUNDS.append(sound)
 
 
-def draw(win, status, word):
+def draw(win, status, word, LEVEL):
     win.fill(WHITE)
     display_text = ""
     for letter in word:
@@ -77,6 +91,12 @@ def draw(win, status, word):
             win.blit(text, (x - text.get_width()/2,y - text.get_height()/2))
     
     win.blit(images[status], (200, 200))
+
+    font = pygame.font.SysFont('comicsans', 30)
+    text = "Difficulty: " + str(LEVEL)
+    textt = font.render(text, 1, RED)
+    win.blit(textt, (500, 20))
+
     pygame.display.update()
 
 
@@ -114,7 +134,6 @@ def draw_time(win, seconds, dis_tex):
     pygame.display.update()
 
 def restart():
-    POSITIONS.clear()
     guessed.clear()
     main()
 
@@ -126,9 +145,12 @@ def want_to_play_again(win, text, word, seconds):
     else:
         SOUNDS[4].play()
 
+    FPS = 60
+    clock = pygame.time.Clock()
     run = True
     while run:
         draw_win_lose(win, text, word, seconds)
+        clock.tick(FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -141,14 +163,60 @@ def want_to_play_again(win, text, word, seconds):
     pygame.quit()
 
 
+def choose_word(LEVEL):
+    while True:
+        word = random.choice(words).upper()
+        if len(word) == LEVEL:
+            return word 
+
+
+def draw_level(win):
+    win.fill(WHITE)
+
+    font = pygame.font.SysFont('comicsans', 50)
+    text = "Choose Difficulty!"
+    textt = font.render(text, 1, BLACK)
+    win.blit(textt, (500 - textt.get_width()/2, 200))
+    win.blit(images[6], (0,250))
+
+    for pos in LEVEL_POSITIONS:
+        x, y, A = pos
+        pygame.draw.circle(win, BLACK, (x, y), RAD, 3)
+        font = pygame.font.SysFont('comicsans', 30)
+        text = font.render(A, 1, BLACK)
+        win.blit(text, (x - text.get_width()/2,y - text.get_height()/2))
+    
+    pygame.display.update()
+
+
+def select_level(win):
+    FPS = 60
+    clock = pygame.time.Clock()
+
+    while True:
+        draw_level(win)
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                m_x, m_y = pygame.mouse.get_pos()
+                for pos in LEVEL_POSITIONS:
+                    x, y, A = pos
+                    dis = math.sqrt((x - m_x)**2 + (y - m_y)**2)
+                    if dis < RAD:
+                        return int(A)
+
+
+
 def main():
     FPS = 60
     clock = pygame.time.Clock()
     win = set_display()
-    set_position()
-    load_images()
-    load_sounds()
-    word = random.choice(words).upper()
+    LEVEL = select_level(win)
+    word = choose_word(LEVEL)
+    print(word)
 
     run = True
     status = 0
@@ -163,7 +231,7 @@ def main():
         clock.tick(FPS)
 
         draw_time(win, seconds, "Time: ")
-        draw(win, status, word)
+        draw(win, status, word, LEVEL)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -191,17 +259,20 @@ def main():
                 break
         
         if won:
-            draw(win, status, word)
+            draw(win, status, word, LEVEL)
             text = "YOU WON!"
             want_to_play_again(win, text, word, seconds)
 
         if status == 6:
-            draw(win, status, word)
-            text = "YOU LOSE!"
+            draw(win, status, word, LEVEL)
+            text = "YOU LOST!"
             want_to_play_again(win, text, word, seconds)
             
     pygame.quit()
 
 
 if __name__ == "__main__":
+    set_position()
+    load_images()
+    load_sounds()
     main()
