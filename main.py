@@ -216,7 +216,6 @@ def main():
     win = set_display()
     LEVEL = select_level(win)
     word = choose_word(LEVEL)
-    print(word)
 
     run = True
     status = 0
