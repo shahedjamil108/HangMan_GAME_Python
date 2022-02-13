@@ -109,7 +109,7 @@ def draw_win_lose(win, display_text, word, seconds):
     text = font.render(display_text, 1, BLACK)
     win.blit(text,(500 - text.get_width()/2, 350 - text.get_height()/2))
 
-    if display_text == "YOU LOSE!":
+    if display_text == "YOU LOST!":
         win.blit(images[6], (0,0))
         font = pygame.font.SysFont('comicsans', 50)
         text = "The Word Was: " + word
@@ -135,6 +135,7 @@ def draw_time(win, seconds, dis_tex):
 
 def restart():
     guessed.clear()
+    POSITIONS.clear()
     main()
 
 
@@ -214,6 +215,7 @@ def main():
     FPS = 60
     clock = pygame.time.Clock()
     win = set_display()
+    set_position()
     LEVEL = select_level(win)
     word = choose_word(LEVEL)
 
@@ -271,7 +273,6 @@ def main():
 
 
 if __name__ == "__main__":
-    set_position()
     load_images()
     load_sounds()
     main()
